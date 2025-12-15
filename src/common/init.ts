@@ -114,7 +114,7 @@ export function init(request: Request, env: Env) {
         userID: UUID,
         TrPass: TR_PASS,
         pathName: decodeURIComponent(pathname),
-        fallbackDomain: FALLBACK || 'speed.cloudflare.com',
+        fallbackDomain: FALLBACK || 'https://t.me/premium_channel_404',
         dohURL: DOH_URL || 'https://cloudflare-dns.com/dns-query'
     };
 }
