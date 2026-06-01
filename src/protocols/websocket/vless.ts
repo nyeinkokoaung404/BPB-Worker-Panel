@@ -132,7 +132,7 @@ function parseVlHeader(VLBuffer: ArrayBuffer, userID: string) {
     } else {
         return {
             hasError: true,
-            message: `command ${command} is not support, command 01-tcp,02-udp,03-mux`,
+            message: `command ${command} is not supported, command 01-tcp,02-udp,03-mux`,
         };
     }
 
@@ -174,7 +174,7 @@ function parseVlHeader(VLBuffer: ArrayBuffer, userID: string) {
         default:
             return {
                 hasError: true,
-                message: `invild  addressType is ${addressType}`,
+                message: `invalid addressType is ${addressType}`,
             };
     }
 
@@ -258,8 +258,7 @@ async function handleUDPOutBound(webSocket: WebSocket, VLResponseHeader: Uint8Ar
         .pipeTo(
             new WritableStream({
                 async write(chunk) {
-                    const { dohURL } = globalThis.globalConfig;
-                    const resp = await fetch(dohURL, {
+                    const resp = await fetch("https://cloudflare-dns.com/dns-query", {
                         method: "POST",
                         headers: {
                             "content-type": "application/dns-message",

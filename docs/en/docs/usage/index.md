@@ -36,6 +36,14 @@ First, update your client to the latest version or refer to the table below. The
 
     [:octicons-arrow-right-24: Getting started](fragment.md)
 
+- :material-playlist-check:{ .lg .middle } **Raw**
+
+    ---
+
+    Connect to Raw **VLESS** and **Trojan** configs which don't include panel settings.
+
+    [:octicons-arrow-right-24: Getting started](raw.md)
+
 - :material-playlist-check:{ .lg .middle } **Warp**
 
     ---
@@ -51,5 +59,13 @@ First, update your client to the latest version or refer to the table below. The
     Connect to Cloudflare Warp even if Warp is blocked in your region.
 
     [:octicons-arrow-right-24: Getting started](warp-pro.md)
+
+- :material-playlist-check:{ .lg .middle } **DNS over HTTPS**
+
+    ---
+
+    Set DoH in your browser or use in DNS based clients like Intra.
+
+    [:octicons-arrow-right-24: Getting started](doh.md)
 
 </div>

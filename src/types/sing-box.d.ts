@@ -48,7 +48,7 @@ export interface DnsRule {
     domain_suffix?: string[];
     ip_accept_any?: true;
     inbound?: string;
-    query_type?: Array<"A" | "AAAA">;
+    query_type?: Array<"A" | "AAAA" | "HTTPS">;
     action?: "route" | "reject";
     server?: string;
 }
@@ -124,6 +124,10 @@ export interface TLS {
         enabled: true;
         public_key: string;
         short_id: string;
+    };
+    ech?: {
+        enabled: boolean;
+        query_server_name?: string;
     };
 }
 

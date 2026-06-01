@@ -96,6 +96,8 @@ declare global {
         fragmentPackets: "tlshello" | "1-1" | "1-2" | "1-3" | "1-5";
         fragmentMaxSplitMin?: number;
         fragmentMaxSplitMax?: number;
+        enableECH: boolean;
+        echServerName: string;
         bypassIran: boolean;
         bypassChina: boolean;
         bypassRussia: boolean;
@@ -172,6 +174,7 @@ declare global {
     const __PANEL_HTML_CONTENT__: string;
     const __LOGIN_HTML_CONTENT__: string;
     const __SECRETS_HTML_CONTENT__: string;
+    const __PROXY_IP_HTML_CONTENT__: string;
 
     interface Array<T> {
         concatIf<T>(condition: boolean, concat: T | T[]): T[];

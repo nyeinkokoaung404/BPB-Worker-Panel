@@ -79,6 +79,7 @@ function initiatePanel(proxySettings) {
 }
 
 function populatePanel(proxySettings) {
+    document.getElementById("doh").textContent = `${window.origin}/dns-query/${decodeURIComponent(globalThis.subPath)}`;
     selectElements.forEach(elm => elm.value = proxySettings[elm.id]);
     checkboxElements.forEach(elm => elm.checked = proxySettings[elm.id]);
     inputElements.forEach(elm => elm.value = proxySettings[elm.id] || "");
@@ -940,6 +941,17 @@ function validateXrayNoises(fields) {
     return !submisionError;
 }
 
+function validateEchConfig() {
+    const echServerName = getElmValue("echServerName");
+    
+    if (echServerName && !isDomain(echServerName)) {
+        alert('⛔ The ECH Server Name should be a domain!');
+        return false;
+    }
+
+    return true;
+}
+
 function validateSettings() {
     const configForm = document.getElementById('configForm');
     const formData = new FormData(configForm);
@@ -967,7 +979,8 @@ function validateSettings() {
         validateCustomCdn(),
         validateKnockerNoise(),
         validateXrayNoises(fields),
-        validateCustomRules()
+        validateCustomRules(),
+        validateEchConfig()
     ];
 
     if (!validations.every(Boolean)) {

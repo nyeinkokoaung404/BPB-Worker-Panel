@@ -121,24 +121,36 @@ export function buildWebsocketOutbound(
     isFragment: boolean
 ): Outbound {
     const {
-        settings: { fingerprint, enableTFO },
+        settings: {
+            fingerprint,
+            enableTFO,
+            enableECH,
+            echServerName
+        },
         globalConfig: { userID, TrPass },
         dict: { _VL_ }
     } = globalThis;
 
     const isTLS = isHttps(port);
     const { host, sni, allowInsecure } = selectSniHost(address);
+    const tlsSettings = isTLS ? buildTlsSettings(
+        sni,
+        fingerprint,
+        "http/1.1",
+        allowInsecure,
+        enableECH && !isFragment,
+        echServerName || undefined,
+    ) : undefined;
 
     const streamSettings: StreamSettings = {
         network: "ws",
         ...buildTransport("ws", "none", `${generateWsPath(protocol)}?ed=2560`, host),
         security: isTLS ? "tls" : "none",
-        tlsSettings: isTLS ? buildTlsSettings(sni, fingerprint, "http/1.1", allowInsecure) : undefined,
+        tlsSettings,
         sockopt: isFragment
             ? buildSockopt(false, false, undefined, "fragment")
             : buildSockopt(true, enableTFO, "UseIP"),
     };
-
 
     if (protocol === _VL_) return buildOutbound<VlessSettings>(protocol, "proxy", false, {
         vnext: [{
@@ -248,7 +260,7 @@ export function buildChainOutbound(): Outbound | undefined {
         network: type || "raw",
         ...buildTransport(type, headerType, path, host, serviceName, mode, authority),
         security,
-        tlsSettings: security === 'tls' ? buildTlsSettings(sni || address, fp, alpn, false) : undefined,
+        tlsSettings: security === 'tls' ? buildTlsSettings(sni || address, fp, alpn, false, false, undefined) : undefined,
         realitySettings: security === "reality" ? buildRealitySettings(sni, fp, pbk, sid, spx) : undefined,
         sockopt: buildSockopt(false, false, "UseIPv4", "proxy")
     };
@@ -404,13 +416,23 @@ function buildTlsSettings(
     serverName: string,
     fingerprint: Fingerprint,
     alpn: string,
-    allowInsecure: boolean
+    allowInsecure: boolean,
+    enableECH: boolean,
+    echServerName?: string
 ): TlsSettings {
+    const { localDNS } = globalThis.settings;
+    const echQueryDNS = localDNS === "localhost" ? "8.8.8.8" : localDNS
+    
     return {
         serverName,
         fingerprint: fingerprint,
         alpn: alpn?.split(','),
-        allowInsecure
+        allowInsecure,
+        echConfigList: enableECH 
+            ? echServerName 
+                ? `${echServerName}+udp://${echQueryDNS}`
+                : `udp://${echQueryDNS}` 
+            : undefined
     }
 }
 

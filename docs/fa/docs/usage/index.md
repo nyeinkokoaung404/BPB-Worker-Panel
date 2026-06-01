@@ -36,6 +36,14 @@
 
     [:octicons-arrow-right-24: شروع](fragment.md)
 
+- :material-playlist-check:{ .lg .middle } **اشتراک Raw یا خام**
+
+    ---
+
+    کانفیگ‌های خام **VLESS** و **Trojan** بدون اعمال تنظیمات پنل.
+
+    [:octicons-arrow-right-24: شروع](raw.md)
+
 - :material-playlist-check:{ .lg .middle } **اشتراک Warp**
 
     ---
@@ -51,5 +59,13 @@
     اتصال به Cloudflare Warp حتی اگه Warp روی اپراتورتون فیلتر شده باشه.
 
     [:octicons-arrow-right-24: شروع](warp-pro.md)
+
+- :material-playlist-check:{ .lg .middle } **DNS over HTTPS**
+
+    ---
+
+    برای استفاده در مرورگر یا برنامه‌های بر پایه DNS مثل Intra و Rethink
+
+    [:octicons-arrow-right-24: شروع](doh.md)
 
 </div>

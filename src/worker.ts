@@ -8,7 +8,9 @@ import {
 	handleLogin,
 	logout,
 	renderError,
-	handleWebsocket
+	handleWebsocket,
+	handleDoH,
+	handleProxyIPs
 } from '@handlers';
 
 export default {
@@ -43,6 +45,12 @@ export default {
 
 					case 'favicon.ico':
 						return await serveIcon();
+
+					case 'dns-query':
+						return await handleDoH(request);
+
+					case 'proxy-ip':
+						return await handleProxyIPs(request, env);
 
 					default:
 						return await fallback(request);

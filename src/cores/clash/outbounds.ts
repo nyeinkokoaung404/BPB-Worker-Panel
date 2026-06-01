@@ -54,14 +54,24 @@ export function buildWebsocketOutbound(
     const {
         dict: { _VL_, _TR_ },
         globalConfig: { userID, TrPass },
-        settings: { fingerprint, enableTFO, enableIPv6 }
+        settings: { fingerprint, enableTFO, enableIPv6, enableECH, echServerName }
     } = globalThis;
 
     const isTLS = isHttps(port);
     if (protocol === _TR_ && !isTLS) return null;
     const { host, sni, allowInsecure } = selectSniHost(address);
 
-    const tls = isTLS ? buildTLS(protocol, "tls", allowInsecure, sni, "http/1.1", fingerprint) : {};
+    const tls = isTLS ? buildTLS(
+        protocol, 
+        "tls", 
+        allowInsecure, 
+        sni, 
+        enableECH, 
+        echServerName || undefined, 
+        "http/1.1", 
+        fingerprint
+    ) : {};
+    
     const transport = buildTransport("ws", undefined, generateWsPath(protocol), host, undefined, 2560);
 
     if (protocol === _VL_) return buildOutbound<VlessOutbound>(remark, protocol, address, port, enableIPv6, enableTFO, tls, transport, {
@@ -87,7 +97,7 @@ export function buildWarpOutbound(
         amneziaNoiseSizeMax,
         enableIPv6
     } = globalThis.settings;
-    
+
     const { host, port } = parseHostPort(endpoint, false);
     const ipVersion = enableIPv6 ? "ipv4-prefer" : "ipv4";
 
@@ -140,7 +150,7 @@ export function buildChainOutbound(): ChainOutbound | undefined {
     const ed = searchParams.get("ed");
     const earlyData = ed ? +ed : undefined;
 
-    const tls = buildTLS(protocol, security, false, sni || server, alpn, fp, pbk, sid);
+    const tls = buildTLS(protocol, security, false, sni || server, false, undefined, alpn, fp, pbk, sid);
     const transport = buildTransport(type, headerType, path, host, serviceName, earlyData);
 
     switch (protocol) {
@@ -207,6 +217,8 @@ function buildTLS(
     security: "tls" | "reality" | "none",
     allowInsecure: boolean,
     sni: string,
+    enableECH: boolean,
+    echServerName?: string,
     alpn?: string,
     fingerprint?: Fingerprint,
     publicKey?: string,
@@ -225,7 +237,11 @@ function buildTLS(
     if (security === "tls") {
         return {
             ...common,
-            "alpn": alpn?.split(',')
+            "alpn": alpn?.split(','),
+            "ech-opts": enableECH ? {
+                "enable": true,
+                "query-server-name": echServerName
+            } : undefined
         };
     } else if (security === "reality" && publicKey && shortID) {
         return {
