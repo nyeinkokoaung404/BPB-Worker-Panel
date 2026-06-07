@@ -1,4 +1,4 @@
-import { getDataset } from "kv";
+import { getDataset } from "@kv";
 import { isValidUUID } from "@common";
 
 globalThis.dict = {
@@ -31,6 +31,11 @@ globalThis.settings = {
     proxyIPMode: "proxyip",
     proxyIPs: [],
     prefixes: [],
+    upstreamProxy: "",
+    upstreamParams: {
+        upstreamServer: undefined,
+        upstreamPort: undefined
+    },
     outProxy: "",
     outProxyParams: {},
     cleanIPs: [],
@@ -86,7 +91,6 @@ globalThis.settings = {
             type: "rand",
             packet: "50-100",
             delay: "1-1",
-            applyTo: "ip",
             count: 5
         }
     ],
@@ -100,6 +104,8 @@ globalThis.settings = {
     amneziaNoiseCount: 5,
     amneziaNoiseSizeMin: 50,
     amneziaNoiseSizeMax: 100,
+    customSubs: [],
+    customConfigs: [],
     panelVersion: __VERSION__
 };
 
@@ -116,7 +122,7 @@ export function init(request: Request, env: Env) {
         userID: UUID,
         TrPass: TR_PASS,
         pathName: decodeURIComponent(pathname),
-        fallbackDomain: FALLBACK || 'nyeinkokoaung404.github.io',
+        fallbackDomain: FALLBACK || 'www.hcaptcha.com',
         dohURL: DOH_URL || 'https://cloudflare-dns.com/dns-query'
     };
 }
