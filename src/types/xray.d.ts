@@ -41,6 +41,12 @@ export interface DNS {
     tag: "dns";
 }
 
+interface Sniffing {
+    destOverride: Array<"http" | "tls" | "quic" | "fakedns">;
+    enabled: true;
+    routeOnly: true;
+}
+
 export interface MixedInbound {
     listen: string;
     port: 10808;
@@ -49,12 +55,18 @@ export interface MixedInbound {
         auth: "noauth";
         udp: true;
     };
-    sniffing: {
-        destOverride: Array<"http" | "tls" | "quic" | "fakedns">;
-        enabled: true;
-        routeOnly: true;
-    };
+    sniffing: Sniffing;
     tag: "mixed-in";
+}
+
+export interface TunInbound {
+    protocol: "tun";
+    settings: {
+        mtu: 1500;
+        name: "xray0";
+    };
+    sniffing: Sniffing;
+    tag: "tun";
 }
 
 export interface DokodemoDoorInbound {
@@ -114,7 +126,6 @@ export interface TlsSettings {
     serverName: string;
     fingerprint: Fingerprint;
     alpn?: string[];
-    allowInsecure: boolean;
     echConfigList?: string;
 }
 
@@ -176,6 +187,24 @@ export interface HappyEyeballs {
     maxConcurrentTry: number;
 }
 
+type TCPMask = {
+    type: "fragment";
+    settings: {
+        packets: "tlshello" | "1-1" | "1-2" | "1-3" | "1-5";
+        length: string;
+        delay: string;
+        maxSplit?: string;
+    };
+};
+
+type UDPMask = {
+    type: string;
+    settings: {
+        reset: string;
+        noise: Noise[];
+    };
+};
+
 export interface Sockopt {
     dialerProxy?: string;
     domainStrategy?: DomainStrategy;
@@ -192,7 +221,11 @@ export interface StreamSettings {
     wsSettings?: WsSettings;
     httpupgradeSettings?: HttpupgradeSettings;
     grpcSettings?: GrpcSettings;
-    sockopt: Sockopt;
+    sockopt?: Sockopt;
+    finalmask?: {
+        tcp?: TCPMask[];
+        udp?: UDPMask[];
+    }
 }
 
 interface BlockholeSettings {
@@ -202,7 +235,11 @@ interface BlockholeSettings {
 }
 
 interface DnsOutSettings {
-    nonIPQuery: "reject";
+    rules: [
+        {
+            action: "hijack";
+        }
+    ];
 }
 
 interface Fragment {
@@ -213,8 +250,10 @@ interface Fragment {
 }
 
 export interface Noise {
-    type: 'rand' | 'base64' | 'hex' | 'str';
-    packet: string;
+    rand?: string;
+    randRange?: string;
+    type?: "array" | "str" | "base64" | "hex";
+    packet?: string | number[];
     delay: string;
 }
 
@@ -335,7 +374,7 @@ export interface Config {
     };
     log: Log;
     dns: Dns;
-    inbounds: Array<MixedInbound | DokodemoDoorInbound>;
+    inbounds: Array<MixedInbound | DokodemoDoorInbound | TunInbound>;
     outbounds: Outbound[];
     policy: Policy;
     routing: Routing,
