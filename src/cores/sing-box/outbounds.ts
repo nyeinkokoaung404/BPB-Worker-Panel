@@ -25,7 +25,7 @@ import {
     Fingerprint,
     URLTest,
     ChainOutbound
-} from 'types/sing-box';
+} from '#types/sing-box';
 
 function buildOutbound<T>(
     tag: string,
@@ -59,12 +59,18 @@ export function buildWebsocketOutbound(
     const {
         dict: { _VL_ },
         globalConfig: { userID, TrPass },
-        settings: { fingerprint, enableTFO, enableECH, echServerName }
+        settings: { 
+            fingerprint, 
+            enableTFO, 
+            enableECH, 
+            echServerName, 
+            upstreamParams: { upstreamServer } 
+        }
     } = globalThis;
 
     const { host, sni, allowInsecure } = selectSniHost(address);
     const transport = buildTransport("ws", "none", generateWsPath(protocol), host, undefined, 2560);
-    const tls = isHttps(port)
+    const tls = isHttps(port) || address === upstreamServer
         ? buildTLS(
             "tls",
             isFragment,
