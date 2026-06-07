@@ -145,6 +145,8 @@ select {
 
 textarea {
     font-family: inherit;
+    scrollbar-color: #ccc transparent;
+    scrollbar-width: thin;
     resize: none;
     color: var(--color);
     max-height: calc(5lh + 10px);
