@@ -51,16 +51,20 @@ declare global {
         ipv6: string[];
     }
 
+    interface UpstreamProxy {
+        upstreamServer?: string;
+        upstreamPort?: number;
+    }
+
     interface DnsResult {
         ipv4: string[];
         ipv6: string[];
     }
 
     interface XrUdpNoise {
-        type: "rand" | "str" | "base64" | "hex";
+        type: "rand" | "str" | "base64" | "hex" | "array";
         packet: string;
         delay: string;
-        applyTo: "ip" | "ipv4" | "ipv6";
         count: number;
     }
 
@@ -76,6 +80,8 @@ declare global {
         proxyIPMode: "proxyip" | "prefix";
         proxyIPs: string[];
         prefixes: string[];
+        upstreamProxy: string;
+        upstreamParams: UpstreamProxy;
         outProxy: string;
         outProxyParams: any;
         cleanIPs: string[];
@@ -137,6 +143,8 @@ declare global {
         amneziaNoiseCount: number;
         amneziaNoiseSizeMin: number;
         amneziaNoiseSizeMax: number;
+        customSubs: string[];
+        customConfigs: string[];
         panelVersion: string;
     }
 
