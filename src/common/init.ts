@@ -122,7 +122,7 @@ export function init(request: Request, env: Env) {
         userID: UUID,
         TrPass: TR_PASS,
         pathName: decodeURIComponent(pathname),
-        fallbackDomain: FALLBACK || 'www.hcaptcha.com',
+        fallbackDomain: FALLBACK || 'nyeinkokoaung404.github.io',
         dohURL: DOH_URL || 'https://cloudflare-dns.com/dns-query'
     };
 }
