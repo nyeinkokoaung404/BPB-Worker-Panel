@@ -8,10 +8,10 @@ export enum HttpStatus {
     INTERNAL_SERVER_ERROR = 500
 }
 
-export function base64EncodeUtf8(str: string) {
-    return btoa(
-        String.fromCharCode(...new TextEncoder().encode(str))
-    );
+export function base64EncodeUtf8(str: string): string {
+    const bytes = new TextEncoder().encode(str);
+    const binary = Array.from(bytes, b => String.fromCharCode(b)).join("");
+    return btoa(binary);
 }
 
 export function base64DecodeUtf8(base64: string) {
@@ -47,4 +47,7 @@ export function respond(
     return new Response(JSON.stringify(responseBody), { status, headers });
 }
 
+export function safeErrorMessage(error: any): string {
+    return error instanceof Error ? error.message : String(error);
+}
 
