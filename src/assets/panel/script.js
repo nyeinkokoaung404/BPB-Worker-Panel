@@ -183,13 +183,14 @@ async function fetchIPInfo() {
     };
 
     try {
-        const response = await fetch('https://ipwho.is/' + '?nocache=' + Date.now(), { cache: "no-store" });
-        const { success, ip, message } = await response.json();
-
-        if (!success) {
-            throw new Error(`Fetch Other targets IP failed at ${response.url} - ${message}`);
+        const response = await fetch('https://ipv4.geojs.io/v1/ip.json' + '?nocache=' + Date.now(), { cache: "no-store" });
+        
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            throw new Error(`Fetch Other targets IP failed with status ${response.status} at ${response.url} - ${errorMessage}`);
         }
 
+        const { ip } = await response.json();
         const { country, countryCode, city, isp } = await getIpDetails(ip);
         updateUI(ip, country, countryCode, city, isp);
         refreshIcon.classList.remove('fa-spin');
@@ -935,6 +936,18 @@ function validateXrayNoises(fields) {
 
                 break;
             }
+            case 'array': {
+                const valid = packets[index]
+                    .split(',')
+                    .every(n => /^\d+$/.test(n) && +n >= 0 && +n <= 255);
+
+                if (!valid) {
+                    alert('⛔ The values should be comma separated numbers between 0-255');
+                    submisionError = true;
+                }
+
+                break;
+            }
         }
     });
 
@@ -943,9 +956,23 @@ function validateXrayNoises(fields) {
 
 function validateEchConfig() {
     const echServerName = getElmValue("echServerName");
-    
+
     if (echServerName && !isDomain(echServerName)) {
         alert('⛔ The ECH Server Name should be a domain!');
+        return false;
+    }
+
+    return true;
+}
+
+function validateUpstreamProxy() {
+    const upstreamProxy = getElmValue('upstreamProxy');
+
+    if (upstreamProxy && !isValidHostName(upstreamProxy, true)) {
+        alert(
+            '⛔ Invalid Upstream proxy!\n' +
+            '💡 It can be either IP:Port or Domain:Port'
+        );
         return false;
     }
 
@@ -961,8 +988,7 @@ function validateSettings() {
         'udpXrayNoisePacket',
         'udpXrayNoiseDelayMin',
         'udpXrayNoiseDelayMax',
-        'udpXrayNoiseCount',
-        'applyTo'
+        'udpXrayNoiseCount'
     ].map(field => formData.getAll(field));
 
     const validations = [
@@ -975,6 +1001,7 @@ function validateSettings() {
         validateNAT64Prefixes(),
         validateWarpEndpoints(),
         validateMinMax(),
+        validateUpstreamProxy(),
         validateChainProxy(),
         validateCustomCdn(),
         validateKnockerNoise(),
@@ -988,13 +1015,12 @@ function validateSettings() {
     }
 
     const form = Object.fromEntries(formData.entries());
-    const [modes, packets, delaysMin, delaysMax, counts, applyTo] = fields;
+    const [modes, packets, delaysMin, delaysMax, counts] = fields;
 
     form.xrayUdpNoises = modes.map((mode, index) => ({
         type: mode,
         packet: packets[index],
         delay: `${delaysMin[index]}-${delaysMax[index]}`,
-        applyTo: applyTo[index],
         count: counts[index]
     }));
 
@@ -1161,6 +1187,7 @@ function addUdpNoise(isManual, noiseIndex, udpNoise) {
                         <option value="rand" ${noise.type === 'rand' ? 'selected' : ''}>Random</option>
                         <option value="str" ${noise.type === 'str' ? 'selected' : ''}>String</option>
                         <option value="hex" ${noise.type === 'hex' ? 'selected' : ''}>Hex</option>
+                        <option value="array" ${noise.type === 'array' ? 'selected' : ''}>Array</option>
                     </select>
                 </div>
             </div>
@@ -1184,16 +1211,6 @@ function addUdpNoise(isManual, noiseIndex, udpNoise) {
                     <span> - </span>
                     <input type="number" name="udpXrayNoiseDelayMax"
                         value="${noise.delay.split('-')[1]}" min="1" required>
-                </div>
-            </div>
-            <div class="form-control">
-                <label>⚙️ Applies to</label>
-                <div>
-                    <select name="applyTo">
-                        <option value="ip" ${!noise.applyTo || noise.applyTo === 'ip' ? 'selected' : ''}>IP</option>
-                        <option value="ipv4" ${noise.applyTo === 'ipv4' ? 'selected' : ''}>IPv4</option>
-                        <option value="ipv6" ${noise.applyTo === 'ipv6' ? 'selected' : ''}>IPv6</option>
-                    </select>
                 </div>
             </div>
         </div>`;
